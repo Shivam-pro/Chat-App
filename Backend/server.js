@@ -37,7 +37,7 @@ io.on("connection", (socket)=>{
 
 app.use(express.json({limit: "10mb"}));
 app.use(cors());
-connectDB();
+await connectDB();
 
 app.use("/api/status", (req, res)=>{
     res.send("Server is running");
@@ -53,4 +53,4 @@ if(process.env.NODE_ENV !== "production"){
         console.log(`Server is running on: http://localhost:${Port}`);
     })
 }
-export default app;
+export default server;
