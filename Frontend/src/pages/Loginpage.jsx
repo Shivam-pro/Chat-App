@@ -24,9 +24,9 @@ const Loginpage = () => {
     navigate("/");
   }
   return (
-    <form className="grid gap-4 md:grid-cols-[2fr_1fr] h-full p-5 md:p-15 items-center" onSubmit={submitHandler}>
+    <form className="grid gap-2 md:grid-cols-[2fr_1fr] h-full p-5 md:p-15 items-center" onSubmit={submitHandler}>
       <div className="flex flex-col items-center justify-center h-full">
-        <img src={assets.logo} className="hidden md:block md:h-40 md:w-50" alt="" />
+        <img src={assets.logo} className="h-20 w-20 md:block md:h-40 md:w-50" alt="" />
         <h1 className="text-4xl text-(--accent)">Zap Chat</h1>
       </div>
       <div className="bg-(--border) rounded-lg p-5 flex flex-col gap-2">

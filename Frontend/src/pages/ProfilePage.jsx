@@ -25,8 +25,8 @@ const ProfilePage = () => {
     }
   }
   return (
-    <div className="flex gap-5 px-20 h-full w-full items-center">
-      <form onSubmit={submitHandler} className="flex flex-col gap-3 w-[50%] bg-(--border) rounded-lg p-5 h-fit">
+    <div className="flex md:flex-row flex-col-reverse gap-5 px-10 md:px-20 h-full w-full items-center">
+      <form onSubmit={submitHandler} className="flex flex-col gap-3 w-full md:w-[50%] bg-(--border) rounded-lg p-5 h-fit">
         <h1>Profile Details</h1>  
         <input type="file" id="profile-image" accept='image/png, image/jpeg' onChange={(e)=>setSelectedImg(e.target.files[0])}/>
         <label htmlFor="profile-image" className="flex items-center gap-3 cursor-pointer">
@@ -40,7 +40,7 @@ const ProfilePage = () => {
         <button className="bg-(--accent) py-2 px-4 rounded-full my-1 text-black outline-none">Save</button>
       </form>
       <div className="flex items-center justify-center w-full">
-        <img src={authUser.profilePic || assets.chatting} className="h-80 w-80 rounded-full" alt="" />
+        <img src={authUser.profilePic || assets.chatting} className="h-40 w-40 md:h-80 md:w-80 rounded-full" alt="" />
       </div>
     </div>
   )
