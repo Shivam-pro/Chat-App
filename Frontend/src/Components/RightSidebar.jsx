@@ -18,7 +18,7 @@ const RightSidebar = () => {
 
   return (
     <div className={`${selectedUser && !show ? "hidden" : "flex"} md:flex flex-col bg-(--border) rounded-lg py-2 px-4 h-full overflow-scroll relative`}>
-      <i className="fa-solid fa-arrow-left absolute top-4" onClick={()=>setShow(false)}></i>
+      <i className="fa-solid fa-arrow-left absolute top-4 block! md:hidden!" onClick={()=>setShow(false)}></i>
       <div className='flex flex-col gap-2 items-center py-4 px-5'>
         <img src={selectedUser?.profilePic || assets.profile} className='h-30 w-30 rounded-full' alt="" />
         <div className='flex items-center gap-2 text-xl'>
