@@ -43,6 +43,24 @@ export const getMessages = async(req, res) =>{
         res.json({success: false, message: error.message});
     }
 }
+// Get all messages for selected user
+export const getLastMessage = async(req, res) =>{
+    try {
+        const {id: selectedUserId} = req.params;
+        const myId = req.user._id;
+        const messages = await Message.find({
+            $or: [
+                {senderId: myId, receiverId: selectedUserId},
+                {senderId: selectedUserId, receiverId: myId},
+            ]
+        })
+         const lastMessage = messages[messages.length-1];
+        res.json({success: true, lastMessage});
+    } catch (error) {
+        console.log(error.message);
+        res.json({success: false, message: error.message});
+    }
+}
 
 //API to mark messages as seen using message Id
 export const markMessageAsSeen = async(req, res)=>{

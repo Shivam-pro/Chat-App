@@ -1,13 +1,11 @@
-import { useEffect, useRef } from 'react'
-import assets, { messageDummyData, userInformation } from '../assets/assets.js'
-import { useContext } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react'
+import assets from '../assets/assets.js'
 import { ChatContext } from '../../context/ChatContext.jsx';
 import { AuthContext } from '../../context/AuthContext.jsx';
-import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 const ChatContainer = () => {
-  const { messages, selectedUser, setSelectedUser, sendMessages, setMessages, getMessages } = useContext(ChatContext)
+  const { messages, selectedUser, setSelectedUser, sendMessages, getMessages } = useContext(ChatContext)
   const { authUser, onlineUsers, show, setShow } = useContext(AuthContext);
   const scrollEnd = useRef();
 
@@ -60,12 +58,14 @@ const ChatContainer = () => {
     <div className='bg-(--border) rounded-lg py-2 md:px-4 flex flex-col h-full overflow-scroll relative'>
       <div className='px-5 py-2'>
         <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-2 mb-3'>
-          <img src={selectedUser.profilePic || assets.profile} className='h-10 w-10 rounded-full md:h-15 md:w-15 ' alt="" />
-          <h1>{selectedUser.fullName}</h1>
-          {onlineUsers.includes(selectedUser._id) && <div className='h-2 w-2 bg-green-500 rounded-2xl'></div>}
-        </div>
-        <i className="fa-solid fa-circle-info md:hidden! block! mb-3" onClick={()=>setShow(true)}></i>
+          <div className='flex items-center gap-2 mb-3'>
+            <img src={selectedUser.profilePic || assets.profile} className='h-10 w-10 rounded-full md:h-15 md:w-15 ' alt="" />
+            <div className=''>
+            <h1>{selectedUser.fullName}</h1>
+            {onlineUsers.includes(selectedUser._id) ? <div className='h-2 w-2 text-green-500 text-sm'>online</div> : <p className='text-sm'>offline</p>}
+            </div>
+          </div>
+          <i className="fa-solid fa-circle-info md:hidden! block! mb-3" onClick={() => setShow(true)}></i>
         </div>
         <hr className='text-(--text)' />
       </div>
@@ -75,12 +75,12 @@ const ChatContainer = () => {
             return (
               <div key={index} className={`flex items-center gap-2 text-xs ${msg.senderId !== authUser._id && "flex-row-reverse"}`}>
                 <div className='flex flex-col gap-2 items-center'>
-                  <img src={msg.senderId === selectedUser._id ? selectedUser.profilePic : authUser.profilePic || assets.profile} className='h-10 w-10 rounded-full md:h-15 md:w-15' alt="" />
+                  {/* <img src={msg.senderId === selectedUser._id ? selectedUser.profilePic : authUser.profilePic || assets.profile} className='h-10 w-10 rounded-full md:h-15 md:w-15' alt="" /> */}
                 </div>
-                <div className={`flex flex-col break-all rounded-lg ${msg.senderId === authUser._id ? "bg-(--accent) text-black" : "bg-(--code-bg)"}`}>
+                <div className={`relative flex flex-col break-all rounded-lg max-w-[90%] ${msg.senderId === authUser._id ? "bg-(--accent) text-black received" : "bg-(--code-bg) sent"}`}>
                   {msg.senderId === selectedUser._id && <div className='text-xs font-bold rounded-t-lg pt-1 md:pt-2 pl-1 md:pl-2 pr-10 text-(--accent)'>{selectedUser.fullName}</div>}
-                  <div className='relative text-sm px-1 py-1 md:px-2 md:py-2 rounded-b-lg'>
-                    {msg.image ? (<img src={msg.image} alt='' className='max-w-50 md:max-w-57.5 overflow-hidden rounded-lg' />) : (<p className='pr-12 rounded-b-lg'>{msg.text}</p>)}
+                  <div className='relative text-sm px-1 py-1 md:px-2 md:py-2 rounded-b-lg z-10 '>
+                    {msg.image ? (<img src={msg.image} alt='' className='max-w-60 md:max-w-57.5 overflow-hidden rounded-lg' />) : (<p className='pr-12 rounded-b-lg'>{msg.text}</p>)}
                     <p className='absolute bottom-0 right-1 md:bottom-1 md:right-2 text-[10px]'>{msgTime(msg)}</p>
                   </div>
                 </div>

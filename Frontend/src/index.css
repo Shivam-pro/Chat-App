@@ -32,3 +32,23 @@
 ::-webkit-scrollbar{
   display: none;
 }
+
+.sent::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  right: -9px;
+  bottom: 0;
+  border-left: 15px solid var(--code-bg); /* Tail color matches bg-green-200 */
+  border-top: 15px solid transparent;
+}
+
+.received::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: -9px;
+  bottom: 0;
+  border-right: 15px solid var(--accent); /* Tail color matches bg-white */
+  border-top: 15px solid transparent;
+}
