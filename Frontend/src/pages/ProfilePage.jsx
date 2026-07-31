@@ -39,7 +39,7 @@ const ProfilePage = () => {
         <div className="flex items-center gap-3">
         </div>
         <input type="text" className="bg-(--text) py-2 px-4 my-1 rounded-lg text-black text-sm outline-none" placeholder="Enter your name" value={name} onChange={(e) => setName(e.target.value)} required/>
-        <textarea type="text" className="bg-(--text) min-h-20 py-2 px-4 my-1 rounded-lg text-black text-sm outline-none" placeholder="Enter your Bio" value={bio} onChange={(e) => setBio(e.target.value)} required/>
+        <textarea type="text" className="bg-(--text) min-h-20 py-2 px-4 my-1 rounded-lg text-black text-sm outline-none whitespace-normal break-keep overflow-wrap-anywhere" placeholder="Enter your Bio" value={bio} onChange={(e) => setBio(e.target.value)} required/>
         <button className="bg-(--accent) py-2 px-4 rounded-full my-1 text-black outline-none">Save</button>
       </form>
     </div>

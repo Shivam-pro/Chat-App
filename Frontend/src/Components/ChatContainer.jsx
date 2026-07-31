@@ -83,7 +83,7 @@ const ChatContainer = () => {
                 <div className={`relative flex flex-col break-all rounded-lg max-w-[90%] ${msg.senderId === authUser._id ? "bg-(--accent) text-black received" : "bg-(--code-bg) sent"}`}>
                   {msg.senderId === selectedUser._id && <div className='text-xs font-bold rounded-t-lg pt-1 md:pt-2 pl-1 md:pl-2 pr-10 text-(--accent)'>{selectedUser.fullName}</div>}
                   <div className='relative text-sm px-1 py-1 md:px-2 md:py-2 rounded-b-lg z-10 '>
-                    {msg.image ? (<img src={msg.image} alt='' className='max-w-60 md:max-w-57.5 overflow-hidden rounded-lg' />) : (<p className='pr-12 rounded-b-lg'>{msg.text}</p>)}
+                    {msg.image ? (<img src={msg.image} alt='' className='max-w-60 md:max-w-57.5 overflow-hidden rounded-lg' />) : (<p className='pr-12 rounded-b-lg whitespace-normal break-keep overflow-wrap-anywhere'>{msg.text}</p>)}
                     <p className='absolute bottom-0 right-1 md:bottom-1 md:right-2 text-[10px]'>{msgTime(msg)}</p>
                   </div>
                 </div>

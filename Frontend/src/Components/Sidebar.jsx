@@ -56,7 +56,7 @@ const Sidebar = () => {
                                 <h1>{user.fullName}</h1>
                                 <div className="flex gap-2 items-center">
                                     {
-                                        (lastMessage[user._id] && lastMessage[user._id]?.senderId !== authUser._id) && (lastMessage[user._id]?.seen ? <p className="text-green-500">seen</p> :
+                                        (lastMessage[user._id] && lastMessage[user._id]?.senderId === authUser._id) && (lastMessage[user._id]?.seen ? <p className="text-green-500">seen</p> :
                                             onlineUsers.includes(user._id) ?
                                                 <i className="fa-solid fa-check text-sm text-green-500"></i> :
                                                 <i className="fa-solid fa-check text-sm"></i>)
