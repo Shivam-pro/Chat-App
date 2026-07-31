@@ -13,7 +13,7 @@ export const AuthProvider = ({children})=>{
     const [authUser, setAuthUser] = useState(null);
     const [onlineUsers, setOnlineUsers] = useState([]);
     const [socket, setSocket] = useState(null);
-    const [show, setShow] = useState(false);
+    const [page, setPage] = useState("sidebar")
 
     //Check if user is authenticated and if so, set the user data and connect the socket.
     const checkAuth = async()=>{
@@ -103,8 +103,8 @@ export const AuthProvider = ({children})=>{
         login,
         logout,
         updateProfile,
-        show,
-        setShow
+        page,
+        setPage,
     }
     return (
         <AuthContext.Provider value={value}>

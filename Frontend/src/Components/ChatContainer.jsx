@@ -3,11 +3,13 @@ import assets from '../assets/assets.js'
 import { ChatContext } from '../../context/ChatContext.jsx';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const ChatContainer = () => {
   const { messages, selectedUser, setSelectedUser, sendMessages, getMessages } = useContext(ChatContext)
-  const { authUser, onlineUsers, show, setShow } = useContext(AuthContext);
+  const { authUser, onlineUsers, setPage, page } = useContext(AuthContext);
   const scrollEnd = useRef();
+  const navigate = useNavigate();
 
   const [input, setInput] = useState('');
 
@@ -54,18 +56,19 @@ const ChatContainer = () => {
     }
   }, [messages])
 
-  return selectedUser && !show ? (
-    <div className='bg-(--border) rounded-lg py-2 md:px-4 flex flex-col h-full overflow-scroll relative'>
+  return selectedUser ? (
+    <div className={`${page === "chatcontainer" ? "flex" : "hidden"} bg-(--border) rounded-lg py-2 md:px-4 md:flex flex-col h-full overflow-scroll relative`}>
       <div className='px-5 py-2'>
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-2 mb-3'>
-            <img src={selectedUser.profilePic || assets.profile} className='h-10 w-10 rounded-full md:h-15 md:w-15 ' alt="" />
-            <div className=''>
+            <i className="fa-solid fa-arrow-left block! md:hidden!" onClick={()=>setPage("sidebar")}></i>
+            <img src={selectedUser.profilePic || assets.profile} className='h-10 w-10 rounded-full md:h-13 md:w-13 ' alt="" />
+            <div>
             <h1>{selectedUser.fullName}</h1>
-            {onlineUsers.includes(selectedUser._id) ? <div className='h-2 w-2 text-green-500 text-sm'>online</div> : <p className='text-sm'>offline</p>}
+            {onlineUsers.includes(selectedUser._id) ? <div className='text-green-500 text-sm'>online</div> : <p className='text-sm'>offline</p>}
             </div>
           </div>
-          <i className="fa-solid fa-circle-info md:hidden! block! mb-3" onClick={() => setShow(true)}></i>
+          <i className="fa-solid fa-circle-info md:hidden! block! mb-3" onClick={() => setPage("media")}></i>
         </div>
         <hr className='text-(--text)' />
       </div>
