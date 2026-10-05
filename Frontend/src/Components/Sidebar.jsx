@@ -7,17 +7,36 @@ import { useState, useEffect, useContext } from "react";
 const Sidebar = () => {
     const { logout, onlineUsers, socket, authUser, page, setPage } = useContext(AuthContext);
     const { selectedUser, setSelectedUser, getUsers, users, unseenMessages, setUnseenMessages, lastMessage, setLastMessage, getLastMessage, messages } = useContext(ChatContext);
-    const [input, setInput] = useState(false);
+    const [input, setInput] = useState("");
     const [showMenu, setShowMenu] = useState(false);
+    const [filteredUser, setFilteredUser] = useState([]);
     const nevigate = useNavigate();
+    function search(value){
+        if(value){
+            setFilteredUser(users.filter((user) => user.fullName.toLowerCase().includes(input.toLowerCase())))
+        }
+        else{
+            setFilteredUser(users);
+        }
+    }
 
-    const filteredUser = input ? users.filter((user) => user.fullName.toLowerCase().includes(input.toLowerCase())) : users;
+    function debounceSearch(callback, delay){
+        let timer;
+        return function(...args){
+            if(timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                callback(...args);
+            }, delay);
+        }
+    }
+    const searchUser = debounceSearch(search, 500);
 
     useEffect(() => {
         getUsers()
     }, [onlineUsers])
 
     useEffect(() => {
+        setFilteredUser(users)
         if (users.length > 0) {
             users.forEach(user => {
                 getLastMessage(user._id);
@@ -44,7 +63,7 @@ const Sidebar = () => {
                 </div>
                 <div className="bg-(--bg) pl-3 pt-2 pb-2 rounded-3xl flex gap-3 items-center">
                     <i className="fa-solid fa-magnifying-glass"></i>
-                    <input onChange={(e) => setInput(e.target.value)} type="text" className="border-none outline-none text-white text-sm placeholder-gray-300" placeholder="search here..." />
+                    <input onChange={(e) => {setInput(e.target.value); searchUser(e.target.value)}} type="text" value={input} className="border-none outline-none text-white text-sm placeholder-gray-300" placeholder="search here..." />
                 </div>
             </div>
             <div className="flex flex-col gap-2 overflow-y-scroll h-full">
