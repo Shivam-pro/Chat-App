@@ -1,9 +1,10 @@
 import logo from '../assets/logo1.png';
 import profile from '../assets/Profile.png';
 import menu from '../assets/menu-icon.png';
-import send from "../assets/send-icon.png"
-import image1 from "../assets/image1.webp"
-import chatting from "../assets/chatting-image.jpg"
+import send from "../assets/send-icon.png";
+import image1 from "../assets/image1.webp";
+import chatting from "../assets/chatting-image.jpg";
+import groupicon from "../assets/icons8-group-48.png";
 const assets = {
     logo,
     profile,
@@ -11,6 +12,7 @@ const assets = {
     send,
     image1,
     chatting,
+    groupicon,
 }
 
 export const userInformation = [

@@ -1,18 +1,14 @@
-import { useContext, useState, useEffect, useRef } from 'react'
-import assets from '../assets/assets.js'
+import { useContext, useState, useEffect, useRef, useMemo } from 'react'
+import assets from '../assets/assets.js';
 import { ChatContext } from '../../context/ChatContext.jsx';
 import { AuthContext } from '../../context/AuthContext.jsx';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
 
 const ChatContainer = () => {
-  const { messages, selectedUser, setSelectedUser, sendMessages, getMessages } = useContext(ChatContext)
-  const { authUser, onlineUsers, setPage, page } = useContext(AuthContext);
+  const { messages, selectedChat, sendMessages, getMessages, otherUser, setOtherUser, setSelectedChat } = useContext(ChatContext);
+  const { authUser, onlineUsers, setPage, page, socket } = useContext(AuthContext);
   const scrollEnd = useRef();
-  const navigate = useNavigate();
-
   const [input, setInput] = useState('');
-
   const msgTime = (msg) => {
     const date = new Date(msg.createdAt);
     return date.toLocaleTimeString("en-US", {
@@ -21,6 +17,14 @@ const ChatContainer = () => {
       hour12: true,
     });
   };
+
+  const membersMap = useMemo(() => {
+    const map = {};
+    selectedChat?.participant?.forEach((p) => {
+      map[p.user._id] = p.user;
+    });
+    return map;
+  }, [selectedChat]);
 
   //Handle sending a message
   const handleSendMessage = async (e) => {
@@ -45,27 +49,45 @@ const ChatContainer = () => {
     reader.readAsDataURL(file);
   }
   useEffect(() => {
-    if (selectedUser) {
-      getMessages(selectedUser._id);
+    if (selectedChat) {
+      getMessages(selectedChat._id);
     }
-  }, [selectedUser])
+  }, [selectedChat])
+
+  useEffect(() => {
+    if (!socket || !selectedChat?._id) return;
+    // socket.emit("joinRoom", selectedChat._id);
+    if (selectedChat.isGroup) {
+      setOtherUser(selectedChat.participant.filter((p) => p.user._id !== authUser._id))
+    }
+    else {
+      setOtherUser(selectedChat.participant.find((p) => p.user._id !== authUser._id)?.user)
+    }
+  }, [socket, selectedChat]);
 
   useEffect(() => {
     if (scrollEnd.current && messages) {
       scrollEnd.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages])
-
-  return selectedUser ? (
+  }, [messages]);
+  return selectedChat ? (
     <div className={`${page === "chatcontainer" ? "flex" : "hidden"} bg-(--border) rounded-lg py-2 md:px-4 md:flex flex-col h-full overflow-scroll relative`}>
       <div className='px-5 py-2'>
         <div className='flex items-center justify-between'>
           <div className='flex items-center gap-2 mb-3'>
-            <i className="fa-solid fa-arrow-left block! md:hidden!" onClick={()=>setPage("sidebar")}></i>
-            <img src={selectedUser.profilePic || assets.profile} className='h-10 w-10 rounded-full md:h-13 md:w-13 ' alt="" />
+            <i className="fa-solid fa-arrow-left block! md:hidden!" onClick={() => { setPage("sidebar"); setSelectedChat(null); setOtherUser(null) }}></i>
+            <img src={selectedChat.isGroup ? selectedChat.groupProfilePic || assets.groupicon : otherUser?.profilePic || assets.profile} className='h-10 w-10 rounded-full md:h-13 md:w-13 ' alt="" />
             <div>
-            <h1>{selectedUser.fullName}</h1>
-            {onlineUsers.includes(selectedUser._id) ? <div className='text-green-500 text-sm'>online</div> : <p className='text-sm'>offline</p>}
+              <h1>{selectedChat.isGroup ? selectedChat.name : otherUser?.fullName}</h1>
+              {selectedChat.isGroup ? (
+                <p className='text-sm'>
+                  {selectedChat.participant.length} members
+                </p>
+              ) : otherUser && onlineUsers.includes(otherUser._id) ? (
+                <div className='text-green-500 text-sm'>online</div>
+              ) : (
+                <p className='text-sm'>offline</p>
+              )}
             </div>
           </div>
           <i className="fa-solid fa-circle-info md:hidden! block! mb-3" onClick={() => setPage("media")}></i>
@@ -75,13 +97,32 @@ const ChatContainer = () => {
       <div className='flex flex-col h-full overflow-scroll px-5 py-1 gap-3'>
         {
           messages.map((msg, index) => {
+            const senderId = typeof msg.senderId === "object" ? msg.senderId._id : msg.senderId
+            const isMe = senderId === authUser._id;
+            const sender = membersMap[senderId];
+            const showSender = selectedChat.isGroup && !isMe;
             return (
-              <div key={index} className={`flex items-center gap-2 text-xs ${msg.senderId !== authUser._id && "flex-row-reverse"}`}>
-                <div className='flex flex-col gap-2 items-center'>
-                  {/* <img src={msg.senderId === selectedUser._id ? selectedUser.profilePic : authUser.profilePic || assets.profile} className='h-10 w-10 rounded-full md:h-15 md:w-15' alt="" /> */}
-                </div>
-                <div className={`relative flex flex-col break-all rounded-lg max-w-[90%] ${msg.senderId === authUser._id ? "bg-(--accent) text-black received" : "bg-(--code-bg) sent"}`}>
-                  {msg.senderId === selectedUser._id && <div className='text-xs font-bold rounded-t-lg pt-1 md:pt-2 pl-1 md:pl-2 pr-10 text-(--accent)'>{selectedUser.fullName}</div>}
+              <div key={msg._id} className={`flex items-center gap-2 text-xs ${!isMe && "flex-row-reverse"}`}>
+
+                {showSender && (
+                  <img
+                    src={sender?.profilePic || assets.profile}
+                    className='h-7 w-7 rounded-full md:h-10 md:w-10 self-end'
+                    alt=""
+                  />
+                )}
+
+                {/* <div className='flex flex-col gap-2 items-center'>
+                  {selectedChat.isGroup && (msg.senderId._id === authUser._id ? "" : <img src={otherUser.find((p) => p.user._id === msg.senderId._id)?.profilePic || assets.profile} className='h-7 w-7 rounded-full md:h-10 md:w-10' alt="" />)}
+                </div> */}
+                <div className={`relative flex flex-col break-all rounded-lg max-w-[90%] ${isMe ? "bg-(--accent) text-black received" : "bg-(--code-bg) sent"}`}>
+
+                  {showSender && (
+                    <div className='text-xs font-bold rounded-t-lg pt-1 md:pt-2 pl-1 md:pl-2 pr-10 text-white'>
+                      {sender?.fullName || "Unknown"}
+                    </div>
+                  )}
+
                   <div className='relative text-sm px-1 py-1 md:px-2 md:py-2 rounded-b-lg z-10 '>
                     {msg.image ? (<img src={msg.image} alt='' className='max-w-60 md:max-w-57.5 overflow-hidden rounded-lg' />) : (<p className='pr-12 rounded-b-lg whitespace-normal break-keep overflow-wrap-anywhere'>{msg.text}</p>)}
                     <p className='absolute bottom-0 right-1 md:bottom-1 md:right-2 text-[10px]'>{msgTime(msg)}</p>

@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
 import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/Loginpage"
+import LoginPage from "./pages/Loginpage";
 import ProfilePage from "./pages/ProfilePage";
 import {Toaster} from "react-hot-toast";
 import { useContext } from 'react';
