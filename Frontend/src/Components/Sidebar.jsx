@@ -10,6 +10,7 @@ const Sidebar = () => {
     const { logout, onlineUsers, authUser, page, setPage } = useContext(AuthContext);
     const { selectedChat, setSelectedChat, users, getUsers, getAllChats, allChats, unseenMessages, setUnseenMessages, getLastMessage, messages, startNewChat, createGroup } = useContext(ChatContext);
     const [input, setInput] = useState("");
+    const [debouncedInput, setDebouncedInput] = useState("");
     const [showMenu, setShowMenu] = useState(false);
     const [showUsers, setShowUsers] = useState(allChats ? false : true);
     const nevigate = useNavigate();
@@ -28,7 +29,23 @@ const Sidebar = () => {
         const delivered = others.some((p) => onlineUsers.includes(p.user._id));
         return delivered ? "delivered" : "sent";
     };
-    
+    const getChatName = (chat) =>
+        chat.isGroup
+            ? chat.name
+            : chat.participant?.find((p) => p.user._id !== authUser._id)?.user?.fullName;
+
+    const filteredChats = allChats.filter((chat) =>
+        getChatName(chat)?.toLowerCase().includes(debouncedInput)
+    );
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedInput(input.trim().toLowerCase());
+        }, 400);
+
+        return () => clearTimeout(timer); // cancel if the user keeps typing
+    }, [input]);
+
     useEffect(() => {
         getUsers();
         getAllChats();
@@ -61,11 +78,14 @@ const Sidebar = () => {
                 </div>
                 <div className="bg-(--bg) pl-3 pt-2 pb-2 rounded-3xl flex gap-3 items-center">
                     <i className="fa-solid fa-magnifying-glass"></i>
-                    <input onChange={(e) => { setInput(e.target.value); searchUser(e.target.value) }} type="text" value={input} className="border-none outline-none text-white text-sm placeholder-gray-300" placeholder="search here..." />
+                    <input onChange={(e) => { setInput(e.target.value) }} type="text" value={input} className="border-none outline-none text-white text-sm placeholder-gray-300" placeholder="search here..." />
                 </div>
             </div>
             <div className="flex flex-col gap-2 overflow-y-scroll h-full">
-                {allChats.map((chat) => {
+                {filteredChats.length === 0 && debouncedInput && (
+                    <p className="text-sm text-center text-gray-400">No chats found</p>
+                )}
+                {filteredChats.map((chat) => {
                     return (
                         <div key={chat._id} className={`relative flex items-center rounded-xl px-4 py-2 gap-2 cursor-pointer ${selectedChat?.id === chat.id && "bg-(--code-bg)"}`} onClick={() => { setSelectedChat(chat); setUnseenMessages((prev) => ({ ...prev, [chat._id]: 0 })); setPage("chatcontainer") }}>
                             <img src={
