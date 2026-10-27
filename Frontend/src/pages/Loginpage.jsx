@@ -50,7 +50,7 @@ const Loginpage = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className="bg-(--accent) py-2 px-4 rounded-lg my-1 text-black outline-none flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="bg-(--accent) cursor-pointer py-2 px-4 rounded-lg my-1 text-black outline-none flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isLoading && (
             <span className="h-4 w-4 border-2 border-black border-t-transparent rounded-full animate-spin"></span>

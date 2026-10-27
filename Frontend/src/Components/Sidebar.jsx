@@ -5,7 +5,6 @@ import { ChatContext } from "../../context/ChatContext.jsx";
 import { useState, useEffect, useContext } from "react";
 import { BiMessageSquareAdd } from "react-icons/bi";
 import AllUsers from "./AllUsers.jsx";
-import { UserRound } from "lucide-react";
 
 const Sidebar = () => {
     const { logout, onlineUsers, authUser, page, setPage } = useContext(AuthContext);
@@ -15,9 +14,24 @@ const Sidebar = () => {
     const [showUsers, setShowUsers] = useState(allChats ? false : true);
     const nevigate = useNavigate();
 
+    const getStatus = (chat) => {
+        const msg = chat.lastMessage;
+        if (!msg || msg.senderId !== authUser._id) return null; // only for my own messages
+
+        const others = chat.participant?.filter((p) => p.user._id !== authUser._id) || [];
+        const msgTime = new Date(msg.createdAt);
+
+        const seen = others.length > 0 &&
+            others.every((p) => p.lastReadAt && new Date(p.lastReadAt) >= msgTime);
+        if (seen) return "seen";
+
+        const delivered = others.some((p) => onlineUsers.includes(p.user._id));
+        return delivered ? "delivered" : "sent";
+    };
+    
     useEffect(() => {
-        getUsers(),
-            getAllChats()
+        getUsers();
+        getAllChats();
     }, [onlineUsers])
 
     useEffect(() => {
@@ -27,8 +41,6 @@ const Sidebar = () => {
             });
         }
     }, [allChats, unseenMessages, messages]);
-    // console.log("selectedChat: ", selectedChat);
-    // console.log(allChats);
     return (
         <div className={`${page === "sidebar" ? "flex" : "hidden"} md:flex bg-(--border) rounded-lg py-2 px-4 h-full flex-col gap-7 overflow-scroll relative`}>
             <div className="flex flex-col gap-4">
@@ -63,17 +75,23 @@ const Sidebar = () => {
                                 <h1>{
                                     chat.isGroup ? chat.name : chat.participant?.find((p) => p.user._id !== authUser._id).user?.fullName}</h1>
                                 <div className="flex gap-2 items-center">
-                                    {
-                                        (chat.lastMessage && chat.lastMessage?.senderId === authUser._id) && (chat.lastMessag?.createdAt ? <p className="text-green-500">seen</p> :
-                                            onlineUsers.includes(chat.participant.find((user) => user._id !== authUser._id)._id) ?
-                                                <i className="fa-solid fa-check text-sm text-green-500"></i> :
-                                                <i className="fa-solid fa-check text-sm"></i>)
-                                    }
-                                    <p className={`text-sm truncate w-35 ${selectedChat ? " md:w-35" : " md:w-50"}`}>{chat.lastMessage?.text
-                                        ? chat.lastMessage.text
-                                        : chat.lastMessage?.image
-                                            ? "📷 Image"
-                                            : ""}</p>
+                                    {(() => {
+                                        const status = getStatus(chat);
+                                        return (
+                                            <div className="flex gap-2 items-center">
+                                                {status === "seen" && <p className="text-sm text-green-500 shrink-0">seen</p>}
+                                                {status === "delivered" && <p className="text-sm shrink-0">sent</p>}
+                                                {status === "sent" && <i className="fa-solid fa-check text-sm shrink-0"></i>}
+                                                <p className={`text-sm truncate w-35 ${selectedChat ? "md:w-35" : "md:w-50"}`}>
+                                                    {chat.lastMessage?.text
+                                                        ? chat.lastMessage.text
+                                                        : chat.lastMessage?.image
+                                                            ? "📷 Image"
+                                                            : ""}
+                                                </p>
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             </div>
                             {
